@@ -53,7 +53,7 @@ static void *__thrdpool_routine(void *context) {
   parent_thrdpool = pool;
   while (!pool->stop) {
     entry = (struct __thrdpool_task_entry *)msgqueue_get(pool->msgqueue);
-    if (!entry) { //*任务队列为空
+    if (!entry) { //*任务队列为空,能取出空任务,代表调用了terminate函数里面的set_nonblock
       break;
     }
     task_routine = entry->task.routine;
@@ -72,11 +72,12 @@ static void *__thrdpool_routine(void *context) {
 static void __thrdpool_terminate(int in_pool, thrdpool *pool) {
   // pthread_cond_t term = PTHREAD_COND_INITIALIZER;
   std::unique_lock<std::mutex> lock(pool->mutex);
-  msgqueue_set_nonblock(pool->msgqueue);
+  msgqueue_set_nonblock(
+      pool->msgqueue); //*防止有线程阻塞在取任务和放入任务,无法感知线程池的终止
   // pool->terminate = term;
   pool->stop = true;
   if (in_pool) {
-    pthread_detach(pthread_self());
+    pthread_detach(pthread_self());//*在任务线程调用了destroy()
     pool->nthreads--;
   }
   while (pool->nthreads > 0) {
@@ -198,7 +199,7 @@ int thrdpool_decrease(thrdpool *pool) {
   return -1;
 }
 
-//*当前线程调用__thrdpool_exit_routine函数
+//*当前线程调用__thrdpool_exit_routine函数,用于任务线程的终止,由任务线程调用
 void thrdpool_exit(thrdpool *pool) {
   if (thrdpool_in_pool(pool))
     __thrdpool_exit_routine(pool);
