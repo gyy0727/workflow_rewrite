@@ -2,6 +2,7 @@
 #include "list.h"
 #include "rbtree.h"
 #include <cstddef>
+#include <cstdint>
 #include <errno.h>
 #include <limits.h>
 #include <mutex>
@@ -58,3 +59,202 @@ struct poller {
 
 //*创建epollfd
 static inline int __poller_create_pfd() { return epoll_create(1); }
+
+//*添加fd到epollfd中
+static inline int __poller_add_fd(int fd, int event, void *data,
+                                  poller *poller) {
+  struct epoll_event ev = {.events = (uint32_t)event, .data = {.ptr = data}};
+
+  return epoll_ctl(poller->pfd, EPOLL_CTL_ADD, fd, &ev);
+}
+
+//*从epollfd中删除fd
+static inline int __poller_delete_fd(int fd, int event, poller *poller) {
+  return epoll_ctl(poller->pfd, EPOLL_CTL_DEL, fd, NULL);
+}
+
+//*修改fd的监听事件
+static inline int __poller_modify_fd(int fd, int old_event, int new_event,
+                                     void *data, poller *poller) {
+  struct epoll_event ev = {.events = (uint32_t)new_event,
+                           .data = {.ptr = data}};
+  return epoll_ctl(poller->pfd, EPOLL_CTL_MOD, fd, &ev);
+}
+
+//*创建timerfd
+//*CLOCK_MONOTONIC
+//*参数表示使用的时钟是单调时钟，它不受系统时间更改的影响，适合用于定时器
+static inline int __poller_create_timerfd() {
+  return timerfd_create(CLOCK_MONOTONIC, 0);
+}
+
+static inline int __poller_close_timerfd(int fd) { return close(fd); }
+
+//*超时文件描述符添加到poller
+static inline int __poller_add_timerfd(int fd, poller *poller) {
+  struct epoll_event ev = {.events = EPOLLIN | EPOLLET, .data = {.ptr = NULL}};
+  return epoll_ctl(poller->pfd, EPOLL_CTL_ADD, fd, &ev);
+}
+
+//*设置超时文件描述符的超时时间
+static inline int __poller_set_timerfd(int fd, const struct timespec *abstime) {
+  struct itimerspec timer = {.it_interval = {}, .it_value = *abstime};
+
+  return timerfd_settime(fd, TFD_TIMER_ABSTIME, &timer, NULL);
+}
+
+static inline int __poller_wait(epoll_event *events, int maxevents,
+                                poller *poller) {
+  //*-1表示无限等待,maxevents==sizeof events/sizeof events[0]
+  return epoll_wait(poller->pfd, events, maxevents, -1);
+}
+
+//*取出epoll_event的data,用于回调
+static inline void *__poller_get_event_data(const epoll_event *event) {
+  return event->data.ptr;
+}
+
+//*比较两个时间点的大小,return node1-node2
+static inline long __timeout_cmp(const struct __poller_node *node1,
+                                 const struct __poller_node *node2) {
+  long ret = node1->timeout.tv_sec - node2->timeout.tv_sec;
+  if (ret == 0) {
+    ret = node1->timeout.tv_nsec - node2->timeout.tv_nsec;
+  }
+  return ret;
+}
+
+//*将节点插入到超时红黑树中
+static void __poller_tree_insert(struct __poller_node *node, poller *poller) {
+  struct rb_node **p = &poller->timeo_tree.rb_node;
+  struct rb_node *parent = NULL;
+  struct __poller_node *entry;
+  //*通过偏移量的计算,得出poller_node的起始地址
+  entry = rb_entry(poller->tree_last, struct __poller_node, rb);
+  //*超时红黑树为空,直接插入
+  if (!*p) {
+    poller->tree_first = &node->rb;
+    poller->tree_last = &node->rb;
+  } else if (__timeout_cmp(node, entry) >= 0) {
+    //*node大于超时红黑树的最后一个节点,插入到最后
+    parent = poller->tree_last;
+    p = &parent->rb_right;
+    poller->tree_last = &node->rb;
+  } else {
+    //*node的超时时间小于超时红黑树超时时间最大的节点
+    //*，在这个循环中，它比较新节点 node 的超时时间和当前节点 entry
+    //*的超时时间。如果新节点的超时时间小于当前节点的超时时间，那么 p
+    //*指针指向当前节点的左子节点；否则，p
+    //*指针指向当前节点的右子节点。这个过程一直持续到 p
+    //*指针指向的位置为空，即找到了新节点应该插入的位置。
+    do {
+      parent = *p;
+      entry = rb_entry(*p, struct __poller_node, rb);
+      if (__timeout_cmp(node, entry) < 0)
+        p = &(*p)->rb_left;
+      else
+        p = &(*p)->rb_right;
+    } while (*p);
+    //*判断是不是等于最左的节点,如果是就更新tree->first
+    if (p == &poller->tree_first->rb_left)
+      poller->tree_first = &node->rb;
+  }
+  //*1代表已插入
+  node->in_rbtree = 1;
+  //*下面两个操作用于插入节点后调整红黑树
+  rb_link_node(&node->rb, parent, p);
+  rb_insert_color(&node->rb, &poller->timeo_tree);
+}
+
+//*从超时红黑树中删除节点
+static inline void __poller_tree_erase(struct __poller_node *node,
+                                       poller *poller) {
+  if (&node->rb == poller->tree_first)
+    poller->tree_first = rb_next(&node->rb);
+  if (&node->rb == poller->tree_last)
+    poller->tree_last = rb_prev(&node->rb);
+  rb_erase(&node->rb, &poller->timeo_tree);
+  node->in_rbtree = 0;
+}
+
+//*从poller删除节点
+static int __poller_remove_node(struct __poller_node *node, poller *poller) {
+  int removed;
+  removed = node->removed;
+  //*如果还没删除
+  if (!removed) {
+    poller->nodes[node->data.fd] = NULL;
+    //*不是在rbtree就是list
+    if (node->in_rbtree)
+      __poller_tree_erase(node, poller);
+    else
+      list_delete(&node->list);
+    //*从epoll中删除fd
+    __poller_delete_fd(node->data.fd, node->event, poller);
+  }
+  return removed;
+}
+
+//! 应该是用于将从socket读出的数据搬运到指定地方
+static int __poller_append_message(const void *buf, size_t *n,
+                                   struct __poller_node *node, poller *poller) {
+  poller_message *msg = node->data.message;
+  struct __poller_node *res;
+  int ret;
+  if (!msg) {
+    res = (struct __poller_node *)malloc(sizeof(struct __poller_node));
+    if (!res) {
+      return -1;
+    }
+    msg = node->data.create_message(node->data.context);
+    if (!msg) {
+      free(res);
+      return -1;
+    }
+    node->data.message = msg;
+    node->res = res;
+  } else {
+    res = node->res;
+  }
+  ret = msg->append(buf, n, msg);
+  if (ret > 0) {
+    res->data = node->data;
+    res->error = 0;
+    res->state = PR_ST_SUCCESS;
+    poller->callback((struct poller_result *)res, poller->context);
+
+    node->data.message = NULL;
+    node->res = NULL;
+  }
+  return ret;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

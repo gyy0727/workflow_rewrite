@@ -29,7 +29,7 @@ static inline void list_add_front(list *head, list *entry) {
 static inline void list_delete(list *entry) {
   entry->prev->next = entry->next;
   entry->next->prev = entry->prev;
-  list_init(entry);
+  // list_init(entry);
 }
 
 static inline int list_empty(const struct list *head) {
