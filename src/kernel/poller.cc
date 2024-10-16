@@ -406,37 +406,120 @@ static void __poller_handle_connect(struct __poller_node *node,
   poller->callback((struct poller_result *)node, poller->context);
 }
 
+//*recvfrom事件处理
+static void __poller_handle_recvfrom(struct __poller_node *node,
+                                     poller *poller) {
+  struct __poller_node *res = node->res;
+  struct sockaddr_storage ss;
+  struct sockaddr *addr = (struct sockaddr *)&ss;
+  socklen_t addrlen;
+  void *result;
+  ssize_t n;
 
+  while (1) {
+    addrlen = sizeof(struct sockaddr_storage);
+    //*之所以读写poller->buf不用加锁,是因为one poller per thread
+    n = recvfrom(node->data.fd, poller->buf, POLLER_BUFSIZE, 0, addr, &addrlen);
+    if (n < 0) {
+      if (errno == EAGAIN)
+        return;
+      else
+        break;
+    }
 
+    result =
+        node->data.recvfrom(addr, addrlen, poller->buf, n, node->data.context);
+    if (!result)
+      break;
 
+    res->data = node->data;
+    res->data.result = result;
+    res->error = 0;
+    res->state = PR_ST_SUCCESS;
+    poller->callback((struct poller_result *)res, poller->context);
 
+    res = (struct __poller_node *)malloc(sizeof(struct __poller_node));
+    node->res = res;
+    if (!res)
+      break;
+  }
 
+  if (__poller_remove_node(node, poller))
+    return;
 
+  node->error = errno;
+  node->state = PR_ST_ERROR;
+  free(node->res);
+  poller->callback((struct poller_result *)node, poller->context);
+}
 
+//*处理文件的异步IO事件的完成
+static void __poller_handle_event(struct __poller_node *node, poller *poller) {
+  struct __poller_node *res = node->res;
+  unsigned long long cnt = 0; //*cnt代表异步IO事件的数量
+  unsigned long long value;
+  void *result;
+  ssize_t n;
 
+  while (1) {
+    n = read(node->data.fd, &value, sizeof(unsigned long long));
+    if (n == sizeof(unsigned long long))
+      cnt += value;
+    else {
+      if (n >= 0)
+        errno = EINVAL;
+      break;
+    }
+  }
 
+  //*读完了,开始处理异步IO事件
+  if (errno == EAGAIN) {
+    while (1) {
+      if (cnt == 0)
+        return;
 
+      cnt--;
+      result = node->data.event(node->data.context);
+      if (!result)
+        break;
+      res->data = node->data;
+      res->data.result = result;
+      res->error = 0;
+      res->state = PR_ST_SUCCESS;
+      poller->callback((struct poller_result *)res, poller->context);
+      res = (struct __poller_node *)malloc(sizeof(struct __poller_node));
+      node->res = res;
+      if (!res)
+        break;
+    }
+  }
 
+  if (cnt != 0)
+    write(node->data.fd, &cnt, sizeof(unsigned long long));
 
+  if (__poller_remove_node(node, poller))
+    return;
 
+  node->error = errno;
+  node->state = PR_ST_ERROR;
+  free(node->res);
+  poller->callback((struct poller_result *)node, poller->context);
+}
 
+static int __poller_handle_pipe(poller *poller) {
+  struct __poller_node **node = (struct __poller_node **)poller->buf;
+  int stop = 0;
+  int n;
+  int i;
 
+  n = read(poller->pipe_rd, node, POLLER_BUFSIZE) / sizeof(void *);
+  for (i = 0; i < n; i++) {
+    if (node[i]) {
+      free(node[i]->res);
+      poller->callback((struct poller_result *)node[i], poller->context);
+    } else
+      stop = 1;
+  }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  return stop;
+}
