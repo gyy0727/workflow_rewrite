@@ -54,8 +54,8 @@ struct poller {
   struct rb_root timeo_tree; //*装有包含超时时间的节点
   struct rb_node *tree_first; //*超时红黑树的第一个节点,超时时间最小的节点
   struct rb_node *tree_last; //*超时红黑树的最后一个节点,超时时间最大的节点
-  struct list timeo_list;       //*已经超时的节点的链表
-  struct list no_timeo_list;    //*未超时的节点的链表
+  struct list *timeo_list;      //*已经超时的节点的链表
+  struct list *no_timeo_list;   //*未超时的节点的链表
   struct __poller_node **nodes; //*node数组,所有本poller监听的节点
   std::mutex mutex;             //*互斥锁
   char buf[POLLER_BUFSIZE];     //*缓冲区
@@ -185,6 +185,7 @@ static inline void __poller_tree_erase(struct __poller_node *node,
 static int __poller_remove_node(struct __poller_node *node, poller *poller) {
   int removed;
   removed = node->removed;
+  std::unique_lock<std::mutex> lock(poller->mutex);
   //*如果还没删除
   if (!removed) {
     poller->nodes[node->data.fd] = NULL;
@@ -506,6 +507,7 @@ static void __poller_handle_event(struct __poller_node *node, poller *poller) {
   poller->callback((struct poller_result *)node, poller->context);
 }
 
+//*pipe通知事件
 static int __poller_handle_pipe(poller *poller) {
   struct __poller_node **node = (struct __poller_node **)poller->buf;
   int stop = 0;
@@ -522,4 +524,14 @@ static int __poller_handle_pipe(poller *poller) {
   }
 
   return stop;
+}
+
+//*处理超时事件
+static inline void
+__poller_handle_timeout(const struct __poller_node *time_node, poller *poller) {
+  struct __poller_node *node;
+  struct list *pos, *tmp;
+  list *timeo_list;
+  std::unique_lock<std::mutex> lock(poller->mutex);
+  pos->next = poller->timeo_list;
 }
