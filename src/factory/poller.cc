@@ -2,6 +2,7 @@
 #include "list.h"
 #include "rbtree.h"
 #include <bits/types/struct_iovec.h>
+#include <cerrno>
 #include <climits>
 #include <cstddef>
 #include <cstdint>
@@ -281,7 +282,7 @@ static void __poller_handle_read(struct __poller_node *node, poller *poller) {
 static void __poller_handle_write(struct __poller_node *node, poller *poller) {
   struct iovec *iov = node->data.write_iov; //*先指向写缓冲区
   size_t count = 0;                         //*已经发送的写结构体数量
-  ssize_t nleft;                            //*已经发送的大小
+  ssize_t nleft;                            //*每次while循环发送的大小
   int iovcnt;                               //*需要发送iovec的数量
   int ret;
 
@@ -299,7 +300,143 @@ static void __poller_handle_write(struct __poller_node *node, poller *poller) {
     count += nleft;
     do {
       if (nleft >= iov->iov_len) {
+        nleft -= iov->iov_len;
+        iov->iov_base = (char *)iov->iov_base + iov->iov_len;
+        iov->iov_len = 0;
+        iov++; //*指向下一个结构体,write_iov是一个iovec数组
+        node->data.iovcnt--; //*减少剩余数量
+      } else {
+        iov->iov_base = (char *)iov->iov_base + nleft;
+        iov->iov_len -= nleft;
+        break;
       }
     } while (node->data.iovcnt > 0);
   }
+
+  node->data.write_iov = iov;
+  //*没发送完,出错了
+  if (node->data.iovcnt > 0 && ret >= 0) {
+    if (count == 0) //*一个都没发送
+      return;
+    if (node->data.partial_written(count, node->data.context) >= 0)
+      return;
+  }
+
+  //*发送完了,就删除
+  if (__poller_remove_node(node, poller))
+    return;
+
+  //*删除节点出错
+  if (node->data.iovcnt == 0) {
+    node->error = 0;
+    node->state = PR_ST_FINISHED;
+  } else {
+    node->error = errno;
+    node->state = PR_ST_ERROR;
+  }
+  poller->callback((struct poller_result *)node, poller->context);
 }
+
+//*处理监听事件
+static void __poller_handle_listen(struct __poller_node *node, poller *poller) {
+  struct __poller_node *res = node->res;
+  struct sockaddr_storage ss; //*通用地址
+  struct sockaddr *addr = (struct sockaddr *)&ss;
+  socklen_t addrlen;
+  void *result;
+  int socketfd;
+  while (1) {
+    addrlen = sizeof(struct sockaddr_storage);
+    socketfd = accept(node->data.fd, addr, &addrlen);
+    //*error
+    if (socketfd < 0) {
+      //*EAGAIN 表示操作无法立即完成
+      //*EMFILE表示当前进程已打开太多文件描述符
+      //*ENFILE 表示系统文件描述符已用完
+      if (errno == EAGAIN || errno == EMFILE || errno == ENFILE)
+        return;
+      else if (errno == ECONNABORTED)
+        continue;
+      else
+        break;
+    }
+
+    result = node->data.accept(addr, addrlen, socketfd, node->data.context);
+    if (!result)
+      break;
+    res->data = node->data;
+    res->data.result = result;
+    res->error = 0;
+    res->state = PR_ST_SUCCESS;
+    poller->callback((struct poller_result *)res, poller->context);
+
+    res = (struct __poller_node *)malloc(sizeof(struct __poller_node));
+    node->res = res;
+    if (!res)
+      break;
+  }
+
+  if (__poller_remove_node(node, poller))
+    return;
+
+  node->error = errno;
+  node->state = PR_ST_ERROR;
+  free(node->res);
+  poller->callback((struct poller_result *)node, poller->context);
+}
+
+//*连接事件
+static void __poller_handle_connect(struct __poller_node *node,
+                                    poller *poller) {
+  socklen_t len = sizeof(int);
+  int error;
+  //*获取套接字错误
+  if (getsockopt(node->data.fd, SOL_SOCKET, SO_ERROR, &error, &len) < 0)
+    error = errno;
+  //*删除节点
+  if (__poller_remove_node(node, poller))
+    return;
+  if (error == 0) {
+    node->error = 0;
+    node->state = PR_ST_FINISHED;
+  } else {
+    node->error = error;
+    node->state = PR_ST_ERROR;
+  }
+  poller->callback((struct poller_result *)node, poller->context);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
