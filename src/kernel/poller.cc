@@ -526,12 +526,67 @@ static int __poller_handle_pipe(poller *poller) {
   return stop;
 }
 
-//*处理超时事件
+//*处理超时事件,节点超时只会被删除,不会进行任何操作
 static inline void
 __poller_handle_timeout(const struct __poller_node *time_node, poller *poller) {
   struct __poller_node *node;
   struct list *pos, *tmp;
-  list *timeo_list;
+  list *timeo_list; //*存放取出的超时节点
+  list_init(timeo_list);
   std::unique_lock<std::mutex> lock(poller->mutex);
-  pos->next = poller->timeo_list;
+  pos = poller->timeo_list;
+  while (pos != poller->timeo_list) {
+    node = list_entry(pos, struct __poller_node, list);
+    //*找到第一个没超时的节点,停止循环
+    if (__timeout_cmp(node, time_node) > 0) {
+      break;
+    }
+    //*以下是处理超时的节点
+    if (node->data.fd >= 0) {
+      poller->nodes[node->data.fd] = NULL; //*将对应的node置为NULL
+      __poller_delete_fd(node->data.fd, node->event, poller);
+    } else {
+      node->removed = 1;
+    }
+
+    list_add_tail(pos, timeo_list);
+    pos = pos->next;
+  }
+  //*遍历红黑树取出超时节点
+  while (poller->tree_first) {
+
+    node = rb_entry(poller->tree_first, struct __poller_node, rb);
+    //*红黑树所有节点都还没超时
+    if (__timeout_cmp(node, time_node) > 0)
+      break;
+
+    //*从超时红黑树中删除已超时的节点
+    if (node->data.fd >= 0) {
+      poller->nodes[node->data.fd] = NULL;
+      __poller_delete_fd(node->data.fd, node->event, poller);
+    } else
+      node->removed = 1;
+    poller->tree_first = rb_next(poller->tree_first);
+    rb_erase(&node->rb, &poller->timeo_tree);
+    list_add_tail(&node->list, timeo_list);
+    if (!poller->tree_first) {
+      poller->tree_last = NULL;
+    }
+  }
+  lock.unlock();
+  pos = timeo_list->next;
+  while (pos != timeo_list) {
+    node = list_entry(pos, struct __poller_node, list);
+    if (node->data.fd >= 0) {
+      //*节点超时只会被删除,不会进行任何操作
+      node->error = ETIMEDOUT;
+      node->state = PR_ST_ERROR;
+    } else {
+      node->error = 0;
+      node->state = PR_ST_FINISHED;
+    }
+    free(node->res);
+    poller->callback((struct poller_result *)node, poller->context);
+    pos = pos->next;
+  }
 }

@@ -36,7 +36,6 @@ static inline int list_empty(const struct list *head) {
   return head->next == head;
 }
 
-#define list_entry(ptr, type, member) \
-	((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
+#define list_entry(ptr, type, member)                                          \
+  ((type *)((char *)(ptr) - (unsigned long)(&((type *)0)->member)))
 #endif
-
