@@ -1,8 +1,11 @@
 #include "poller.h"
 #include "list.h"
 #include "rbtree.h"
+#include <bits/types/struct_iovec.h>
+#include <climits>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <errno.h>
 #include <limits.h>
 #include <mutex>
@@ -229,32 +232,74 @@ static int __poller_append_message(const void *buf, size_t *n,
   return ret;
 }
 
+//*处理读事件
+static void __poller_handle_read(struct __poller_node *node, poller *poller) {
+  ssize_t nleft;
+  size_t n;
+  char *p;
 
+  //*将读出的数据通过append_message函数搬运到指定位置
+  while (1) {
+    p = poller->buf;
+    nleft = read(node->data.fd, p, POLLER_BUFSIZE);
+    if (nleft < 0 && errno == EAGAIN)
+      return;
 
+    if (nleft <= 0)
+      break;
 
+    do {
+      n = nleft;
+      if (__poller_append_message(p, &n, node, poller) >= 0) {
+        nleft -= n;
+        p += n;
+      } else
+        nleft = -1;
+    } while (nleft > 0);
+    if (nleft < 0) {
+      break;
+    }
+  }
+  //*删除节点
+  if (__poller_remove_node(node, poller))
+    return;
 
+  //*如果为0 ,那就代表是正常读取完的
+  if (nleft == 0) {
+    node->error = 0;
+    node->state = PR_ST_FINISHED;
+  } else {
+    node->error = errno;
+    node->state = PR_ST_ERROR;
+  }
 
+  free(node->res);
+  poller->callback((struct poller_result *)node, poller->context);
+}
 
+//*写事件的处理
+static void __poller_handle_write(struct __poller_node *node, poller *poller) {
+  struct iovec *iov = node->data.write_iov; //*先指向写缓冲区
+  size_t count = 0;                         //*已经发送的写结构体数量
+  ssize_t nleft;                            //*已经发送的大小
+  int iovcnt;                               //*需要发送iovec的数量
+  int ret;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  while (node->data.iovcnt > 0) {
+    iovcnt = node->data.iovcnt;
+    //*要发送的数据量超过了最大值
+    if (iovcnt > IOV_MAX) {
+      iovcnt = IOV_MAX;
+    }
+    nleft = writev(node->data.fd, iov, iovcnt);
+    if (nleft < 0) {
+      ret = errno == EAGAIN ? 0 : -1;
+      break;
+    }
+    count += nleft;
+    do {
+      if (nleft >= iov->iov_len) {
+      }
+    } while (node->data.iovcnt > 0);
+  }
+}
