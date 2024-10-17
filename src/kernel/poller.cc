@@ -590,3 +590,205 @@ __poller_handle_timeout(const struct __poller_node *time_node, poller *poller) {
     pos = pos->next;
   }
 }
+
+static void __poller_set_timer(poller *poller) {
+  struct __poller_node *node = NULL;
+  struct __poller_node *first;
+  struct timespec abstime;
+
+  std::unique_lock<std::mutex> lock(poller->mutex);
+  if (!list_empty(poller->timeo_list)) //*超时链表不为空
+    node = list_entry(poller->timeo_list->next, struct __poller_node, list);
+  //*超时红黑树不为空
+  if (poller->tree_first) {
+    first = rb_entry(poller->tree_first, struct __poller_node, rb);
+    //*比较链表的最小超时节点和红黑树的最小超时节点
+    if (!node || __timeout_cmp(first, node) < 0)
+      node = first;
+  }
+  if (node)
+    abstime = node->timeout;
+  else {
+    abstime.tv_sec = 0;
+    abstime.tv_nsec = 0;
+  }
+  //*将得出的超时时间设置给poller的timerfd
+  __poller_set_timerfd(poller->timerfd, &abstime);
+}
+
+static void *__poller_thread_routine(void *args) {
+  // Bug 修复：将 (poller *) 改为 (poller *)
+  poller *poller = static_cast<struct poller *>(args);
+  epoll_event events[POLLER_EVENTS_MAX]; //*用于存放发生事件的结构体
+  struct __poller_node time_node;
+  struct __poller_node *node;
+  int has_pipe_event;
+  int nevents;
+  int i;
+
+  while (1) {
+    __poller_set_timer(poller);
+    nevents = __poller_wait(events, POLLER_EVENTS_MAX, poller);
+    //*获取当前的时间点存入time_node中
+    clock_gettime(CLOCK_MONOTONIC, &time_node.timeout);
+    has_pipe_event = 0;
+    for (i = 0; i < nevents; i++) {
+      node = (struct __poller_node *)__poller_get_event_data(&events[i]);
+      if (node <= (struct __poller_node *)1) {
+        if (node == (struct __poller_node *)1)
+          has_pipe_event = 1;
+        continue;
+      }
+
+      switch (node->data.operation) {
+      case PD_OP_READ:
+        __poller_handle_read(node, poller);
+        break;
+      case PD_OP_WRITE:
+        __poller_handle_write(node, poller);
+        break;
+      case PD_OP_LISTEN:
+        __poller_handle_listen(node, poller);
+        break;
+      case PD_OP_CONNECT:
+        __poller_handle_connect(node, poller);
+        break;
+      case PD_OP_RECVFROM:
+        __poller_handle_recvfrom(node, poller);
+        break;
+      case PD_OP_EVENT:
+        __poller_handle_event(node, poller);
+        break;
+      case PD_OP_NOTIFY:
+        // __poller_handle_notify(node, poller);
+        break;
+      }
+    }
+
+    if (has_pipe_event) {
+      if (__poller_handle_pipe(poller))
+        break;
+    }
+
+    __poller_handle_timeout(&time_node, poller);
+  }
+
+  return NULL;
+}
+
+//*初始化管道文件描述符
+static int __poller_open_pipe(poller *poller) {
+  int pipefd[2];
+
+  if (pipe(pipefd) >= 0) {
+    if (__poller_add_fd(pipefd[0], EPOLLIN, (void *)1, poller) >= 0) {
+      poller->pipe_rd = pipefd[0];
+      poller->pipe_wr = pipefd[1];
+      return 0;
+    }
+
+    close(pipefd[0]);
+    close(pipefd[1]);
+  }
+
+  return -1;
+}
+
+//*就是将超时文件描述符加入到epoll中监听
+static int __poller_create_timer(poller *poller) {
+  int timerfd = __poller_create_timerfd();
+  if (timerfd >= 0) {
+    if (__poller_add_timerfd(timerfd, poller) >= 0) {
+      poller->timerfd = timerfd;
+      return 0;
+    }
+    __poller_close_timerfd(timerfd);
+  }
+
+  return -1;
+}
+
+poller *__poller_create(void **nodes_buf, const struct poller_params *params) {
+  poller *poller = (struct poller *)malloc(sizeof(struct poller));
+  int ret;
+
+  if (!poller)
+    return NULL;
+
+  poller->pfd = __poller_create_pfd();
+  if (poller->pfd >= 0) {
+    if (__poller_create_timer(poller) >= 0) {
+      if (ret == 0) {
+        poller->nodes = (struct __poller_node **)nodes_buf;
+        poller->max_open_files = params->max_open_files;
+        poller->callback = params->callback;
+        poller->context = params->context;
+
+        poller->timeo_tree.rb_node = NULL;
+        poller->tree_first = NULL;
+        poller->tree_last = NULL;
+        list_init(poller->timeo_list);
+        list_init(poller->no_timeo_list);
+        poller->stopped = 1;
+        return poller;
+      }
+
+      errno = ret;
+      close(poller->timerfd);
+    }
+
+    close(poller->pfd);
+  }
+
+  free(poller);
+  return NULL;
+}
+
+poller *poller_create(const struct poller_params *params) {
+  void **nodes_buf = (void **)calloc(params->max_open_files, sizeof(void *));
+  poller *poller;
+
+  if (nodes_buf) {
+    poller = __poller_create(nodes_buf, params);
+    if (poller)
+      return poller;
+
+    free(nodes_buf);
+  }
+
+  return NULL;
+}
+
+void __poller_destroy(poller *poller) {
+  // pthread_mutex_destroy(&poller->mutex);
+  __poller_close_timerfd(poller->timerfd);
+  close(poller->pfd);
+  free(poller);
+}
+
+void poller_destroy(poller *poller) {
+  free(poller->nodes);
+  __poller_destroy(poller);
+}
+
+int poller_start(poller *poller) {
+  pthread_t tid;
+  int ret;
+
+  // pthread_mutex_lock(&poller->mutex);
+  std::unique_lock<std::mutex> lock(poller->mutex);
+  if (__poller_open_pipe(poller) >= 0) {
+    ret = pthread_create(&tid, NULL, __poller_thread_routine, poller);
+    if (ret == 0) {
+      poller->tid = tid;
+      poller->stopped = 0;
+    } else {
+      errno = ret;
+      close(poller->pipe_wr);
+      close(poller->pipe_rd);
+    }
+  }
+
+  // pthread_mutex_unlock(&poller->mutex);
+  return -poller->stopped;
+}
