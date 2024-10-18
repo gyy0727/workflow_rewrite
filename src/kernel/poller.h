@@ -65,7 +65,6 @@ struct poller_params {
   void *context; //*回调需要的上下文,队列msgqueue
 };
 
-
 poller *poller_create(const struct poller_params *params);
 int poller_start(poller *poller);
 int poller_add(const struct poller_data *data, int timeout, poller *poller);
