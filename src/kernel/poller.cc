@@ -300,7 +300,7 @@ static void __poller_handle_write(struct __poller_node *node, poller *poller) {
     }
     count += nleft;
     do {
-      if (nleft >= iov->iov_len) {
+      if (nleft >= (ssize_t)iov->iov_len) {
         nleft -= iov->iov_len;
         iov->iov_base = (char *)iov->iov_base + iov->iov_len;
         iov->iov_len = 0;
@@ -530,9 +530,9 @@ static int __poller_handle_pipe(poller *poller) {
 static inline void
 __poller_handle_timeout(const struct __poller_node *time_node, poller *poller) {
   struct __poller_node *node;
-  struct list *pos, *tmp;
-  list *timeo_list; //*存放取出的超时节点
-  list_init(timeo_list);
+  struct list *pos;
+  struct list timeo_list; //*存放取出的超时节点
+  list_init(&timeo_list);
   std::unique_lock<std::mutex> lock(poller->mutex);
   pos = poller->timeo_list->next;
   while (pos != poller->timeo_list) {
@@ -549,7 +549,7 @@ __poller_handle_timeout(const struct __poller_node *time_node, poller *poller) {
       node->removed = 1;
     }
 
-    list_add_tail(timeo_list->prev, pos);
+    list_add_tail(timeo_list.prev, pos);
     pos = pos->next;
   }
   //*遍历红黑树取出超时节点
@@ -568,14 +568,14 @@ __poller_handle_timeout(const struct __poller_node *time_node, poller *poller) {
       node->removed = 1;
     poller->tree_first = rb_next(poller->tree_first);
     rb_erase(&node->rb, &poller->timeo_tree);
-    list_add_tail(timeo_list->prev, &node->list);
+    list_add_tail(timeo_list.prev, &node->list);
     if (!poller->tree_first) {
       poller->tree_last = NULL;
     }
   }
   lock.unlock();
-  pos = timeo_list->next;
-  while (pos != timeo_list) {
+  pos = timeo_list.next;
+  while (pos != &timeo_list) {
     node = list_entry(pos, struct __poller_node, list);
     if (node->data.fd >= 0) {
       //*节点超时只会被删除,不会进行任何操作
@@ -710,7 +710,7 @@ static int __poller_create_timer(poller *poller) {
 
 poller *__poller_create(void **nodes_buf, const struct poller_params *params) {
   poller *poller = (struct poller *)malloc(sizeof(struct poller));
-  int ret;
+  int ret = 0;
 
   if (!poller)
     return NULL;
@@ -1115,9 +1115,9 @@ int poller_del_timer(void *timer, poller *poller) {
 
 void poller_stop(poller *poller) {
   struct __poller_node *node;
-  struct list_head *pos, *tmp;
-  struct list *node_list;
-  list_init(node_list);
+  // struct list *pos, *tmp;
+  struct list node_list;
+  list_init(&node_list);
   void *p = NULL;
 
   write(poller->pipe_wr, &p, sizeof(void *));
@@ -1135,13 +1135,13 @@ void poller_stop(poller *poller) {
   while (poller->timeo_tree.rb_node) {
     node = rb_entry(poller->timeo_tree.rb_node, struct __poller_node, rb);
     rb_erase(&node->rb, &poller->timeo_tree);
-    list_add_tail(node_list, &node->list);
+    list_add_tail(&node_list, &node->list);
   }
 
-  list_add_list(node_list, poller->timeo_list);
-  list_add_list(node_list, poller->no_timeo_list);
-  list *temp = node_list->next;
-  while (temp != node_list) {
+  list_add_list(&node_list, poller->timeo_list);
+  list_add_list(&node_list, poller->no_timeo_list);
+  list *temp = node_list.next;
+  while (temp != &node_list) {
     node = list_entry(temp, struct __poller_node, list);
     if (node->data.fd >= 0) {
       poller->nodes[node->data.fd] = NULL;
@@ -1160,8 +1160,8 @@ void poller_stop(poller *poller) {
   //   free(node->res);
   //   poller->callback((struct poller_result *)node, poller->context);
   // }
-  temp = node_list->next;
-  while (temp != node_list) {
+  temp = node_list.next;
+  while (temp != &node_list) {
     node = list_entry(temp, struct __poller_node, list);
     node->error = 0;
     node->state = PR_ST_STOPPED;

@@ -8,7 +8,7 @@
 #include <stdlib.h>
 static thread_local thrdpool *parent_thrdpool; //*每个线程所属的线程池
 struct thrdpool {
-  msgqueue *msgqueue;                //*任务队列
+  msgqueue *msgqueue_;               //*任务队列
   size_t nthreads;                   //*线程数
   size_t stacksize;                  //*线程栈大小
   pthread_t tid;                     //*线程池id
@@ -52,7 +52,7 @@ static void *__thrdpool_routine(void *context) {
 
   parent_thrdpool = pool;
   while (!pool->stop) {
-    entry = (struct __thrdpool_task_entry *)msgqueue_get(pool->msgqueue);
+    entry = (struct __thrdpool_task_entry *)msgqueue_get(pool->msgqueue_);
     if (!entry) { //*任务队列为空,能取出空任务,代表调用了terminate函数里面的set_nonblock
       break;
     }
@@ -73,11 +73,11 @@ static void __thrdpool_terminate(int in_pool, thrdpool *pool) {
   // pthread_cond_t term = PTHREAD_COND_INITIALIZER;
   std::unique_lock<std::mutex> lock(pool->mutex);
   msgqueue_set_nonblock(
-      pool->msgqueue); //*防止有线程阻塞在取任务和放入任务,无法感知线程池的终止
+      pool->msgqueue_); //*防止有线程阻塞在取任务和放入任务,无法感知线程池的终止
   // pool->terminate = term;
   pool->stop = true;
   if (in_pool) {
-    pthread_detach(pthread_self());//*在任务线程调用了destroy()
+    pthread_detach(pthread_self()); //*在任务线程调用了destroy()
     pool->nthreads--;
   }
   while (pool->nthreads > 0) {
@@ -119,15 +119,15 @@ static int __thrdpool_create_threads(size_t nthreads, thrdpool *pool) {
 //*创建线程池
 thrdpool *thrdpool_create(size_t nthreads, size_t stacksize) {
   thrdpool *pool;
-  int ret;
+  int ret = 0;
   pool = (thrdpool *)malloc(sizeof(thrdpool));
   if (!pool) {
     errno = ret;
     return nullptr;
   }
-  pool->msgqueue =
+  pool->msgqueue_ =
       msgqueue_create(0, 0); //*1:无消息数量上限 2:next指针偏移量为0
-  if (pool->msgqueue) {
+  if (pool->msgqueue_) {
     pool->stacksize = stacksize;
     pool->nthreads = nthreads;
     pool->tid = __zero_tid; //* 值为0
@@ -137,7 +137,7 @@ thrdpool *thrdpool_create(size_t nthreads, size_t stacksize) {
     }
   }
   errno = ret;
-  msgqueue_destroy(pool->msgqueue);
+  msgqueue_destroy(pool->msgqueue_);
   free(pool);
   return nullptr;
 }
@@ -148,7 +148,7 @@ inline void __thrdpool_schedule(const struct thrdpool_task *task, void *buf,
 void __thrdpool_schedule(const struct thrdpool_task *task, void *buf,
                          thrdpool *pool) {
   ((struct __thrdpool_task_entry *)buf)->task = *task;
-  msgqueue_put(buf, pool->msgqueue);
+  msgqueue_put(buf, pool->msgqueue_);
 }
 
 int thrdpool_schedule(const struct thrdpool_task *task, thrdpool *pool) {
@@ -193,7 +193,7 @@ int thrdpool_decrease(thrdpool *pool) {
     entry->task.routine = __thrdpool_exit_routine;
     entry->task.context = pool;
     //*获取到__thrdpool_exit_routine任务的函数就会被终止
-    msgqueue_put_head(entry, pool->msgqueue);
+    msgqueue_put_head(entry, pool->msgqueue_);
     return 0;
   }
   return -1;
@@ -212,7 +212,7 @@ void thrdpool_destroy(void (*pending)(const struct thrdpool_task *),
 
   __thrdpool_terminate(in_pool, pool);
   while (1) {
-    entry = (struct __thrdpool_task_entry *)msgqueue_get(pool->msgqueue);
+    entry = (struct __thrdpool_task_entry *)msgqueue_get(pool->msgqueue_);
     if (!entry)
       break;
 
@@ -221,7 +221,7 @@ void thrdpool_destroy(void (*pending)(const struct thrdpool_task *),
 
     free(entry);
   }
-  msgqueue_destroy(pool->msgqueue);
+  msgqueue_destroy(pool->msgqueue_);
   if (!in_pool)
     free(pool);
 }

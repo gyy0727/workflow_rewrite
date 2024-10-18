@@ -1,0 +1,3 @@
+/cloudide/workspace/workflow_rewrite/build/CMakeFiles/workflow.dir
+/cloudide/workspace/workflow_rewrite/build/CMakeFiles/edit_cache.dir
+/cloudide/workspace/workflow_rewrite/build/CMakeFiles/rebuild_cache.dir
