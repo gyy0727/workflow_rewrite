@@ -1138,24 +1138,35 @@ void poller_stop(poller *poller) {
     list_add_tail(node_list, &node->list);
   }
 
-  list_splice_init(&poller->timeo_list, &node_list);
-  list_splice_init(&poller->no_timeo_list, &node_list);
-  list_for_each(pos, &node_list) {
-    node = list_entry(pos, struct __poller_node, list);
+  list_add_list(node_list, poller->timeo_list);
+  list_add_list(node_list, poller->no_timeo_list);
+  list *temp = node_list->next;
+  while (temp != node_list) {
+    node = list_entry(temp, struct __poller_node, list);
     if (node->data.fd >= 0) {
       poller->nodes[node->data.fd] = NULL;
-      __poller_del_fd(node->data.fd, node->event, poller);
-    } else
+      __poller_delete_fd(node->data.fd, node->event, poller);
+    } else {
       node->removed = 1;
+    }
+    temp = temp->next;
   }
 
-  // pthread_mutex_unlock(&poller->mutex);
   lock.unlock();
-  list_for_each_safe(pos, tmp, &node_list) {
-    node = list_entry(pos, struct __poller_node, list);
+  // list_for_each_safe(pos, tmp, &node_list) {
+  //   node = list_entry(pos, struct __poller_node, list);
+  //   node->error = 0;
+  //   node->state = PR_ST_STOPPED;
+  //   free(node->res);
+  //   poller->callback((struct poller_result *)node, poller->context);
+  // }
+  temp = node_list->next;
+  while (temp != node_list) {
+    node = list_entry(temp, struct __poller_node, list);
     node->error = 0;
     node->state = PR_ST_STOPPED;
     free(node->res);
     poller->callback((struct poller_result *)node, poller->context);
+    temp = temp->next;
   }
 }
