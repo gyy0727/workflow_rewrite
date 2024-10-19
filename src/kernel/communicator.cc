@@ -249,3 +249,47 @@ inline int Communicator::first_timeout(CommSession *session) {
 
   return timeout;
 }
+
+int Communicator::next_timeout(CommSession *session) {
+  int timeout = session->target->m_response_timeout;
+  struct timespec cur_time;
+  int time_used, time_left;
+  if (session->timeout > 0) {
+    clock_gettime(CLOCK_MONOTONIC, &cur_time);
+    time_used = 1000 * (cur_time.tv_sec - session->begin_time.tv_sec) +
+                (cur_time.tv_nsec - session->begin_time.tv_nsec) / 1000000;
+    time_left = session->timeout - time_used;
+    if (time_left <= timeout) /* here timeout >= 0 */
+    {
+      timeout = time_left < 0 ? 0 : time_left;
+      session->timeout = 0;
+    }
+  }
+  return timeout;
+}
+
+int Communicator::first_timeout_send(CommSession *session) {
+  session->timeout = session->send_timeout();
+  return Communicator::first_timeout(session);
+}
+
+int Communicator::first_timeout_recv(CommSession *session) {
+  session->timeout = session->receive_timeout();
+  return Communicator::first_timeout(session);
+}
+
+//*停止listen服务
+void Communicator::shutdown_service(CommService *service) {
+  close(service->listen_fd);
+  service->listen_fd = -1;
+  service->drain(-1);
+  service->decref();
+}
+
+#ifndef IOV_MAX
+#ifdef UIO_MAXIOV
+#define IOV_MAX UIO_MAXIOV
+#else
+#define IOV_MAX 1024
+#endif
+#endif
