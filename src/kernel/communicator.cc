@@ -85,7 +85,6 @@ int CommTarget::init(const struct sockaddr *addr, socklen_t addrlen,
   int ret = 0;
   this->m_addr = (struct sockaddr *)malloc(addrlen);
   if (this->m_addr) {
-    // ret = pthread_mutex_init(&this->mutex, NULL);
     memcpy(this->m_addr, addr, addrlen);
     this->m_addrlen = addrlen;
     this->m_connect_timeout = connect_timeout;
@@ -98,10 +97,7 @@ int CommTarget::init(const struct sockaddr *addr, socklen_t addrlen,
 }
 
 //*重置
-void CommTarget::deinit() {
-  // p?thread_mutex_destroy(&this->mutex);
-  free(this->m_addr);
-}
+void CommTarget::deinit() { free(this->m_addr); }
 
 //*发送数据
 int CommMessageIn::feedback(const void *buf, size_t size) {
@@ -143,6 +139,7 @@ int CommService::init(const struct sockaddr *bind_addr, socklen_t addrlen,
 //*重置
 void CommService::deinit() { free(this->bind_addr); }
 
+//*关闭max个连接
 int CommService::drain(int max) {
   struct CommConnEntry *entry;
   struct list *pos;
@@ -156,14 +153,99 @@ int CommService::drain(int max) {
     entry = list_entry(pos, struct CommConnEntry, list_);
     list_delete(pos);
     cnt++;
-
-    /* Cannot change the sequence of next two lines. */
     mpoller_del(entry->sockfd_, entry->mpoller_);
     entry->state_ = CONN_STATE_CLOSING;
   }
 
-  //   pthread_mutex_unlock(&this->m_mutex);
   lock.unlock();
   errno = errno_bak;
   return cnt;
+}
+
+//*增加引用计数
+inline void CommService::incref() { __sync_add_and_fetch(&this->ref, 1); }
+
+//*减少引用计数
+inline void CommService::decref() {
+  if (__sync_sub_and_fetch(&this->ref, 1) == 0)
+    this->handle_unbound();
+}
+
+//*Target实现
+class CommServiceTarget : public CommTarget {
+public:
+  void incref() { __sync_add_and_fetch(&this->ref, 1); }
+
+  void decref() {
+    if (__sync_sub_and_fetch(&this->ref, 1) == 0) {
+      this->service->decref();
+      this->deinit();
+      delete this;
+    }
+  }
+
+public:
+  int shutdown();
+
+private:
+  int sockfd; //*文件描述符
+  int ref;    //*引用计数
+
+private:
+  CommService *service; //*所属的监听服务
+
+private:
+  virtual int create_connect_fd() {
+    errno = EPERM;
+    return -1;
+  }
+  friend class Communicator;
+};
+
+//*关闭连接
+int CommServiceTarget::shutdown() {
+  struct CommConnEntry *entry;
+  int errno_bak;
+  int ret = 0;
+  std::unique_lock<std::mutex> lock(this->m_mutex);
+  if (!list_empty(&this->m_idle_list)) {
+    entry = list_entry(this->m_idle_list.next, struct CommConnEntry, list_);
+    list_delete(&entry->list_);
+    //*如果是tcp
+    if (this->service->reliable) {
+      errno_bak = errno;
+      mpoller_del(entry->sockfd_, entry->mpoller_);
+      entry->state_ = CONN_STATE_CLOSING;
+      errno = errno_bak;
+    } else {
+      __release_conn(entry);
+      this->decref();
+    }
+    ret = 1;
+  }
+  return ret;
+}
+
+CommSession::~CommSession() {
+  CommServiceTarget *target;
+  //*被动
+  if (!this->passive)
+    return;
+  target = (CommServiceTarget *)this->target;
+  //*主动,tcp连接
+  if (this->passive == 2)
+    target->shutdown();
+  target->decref();
+}
+
+inline int Communicator::first_timeout(CommSession *session) {
+  int timeout = session->target->m_response_timeout;
+
+  if (timeout < 0 || (unsigned int)session->timeout <= (unsigned int)timeout) {
+    timeout = session->timeout;
+    session->timeout = 0;
+  } else
+    clock_gettime(CLOCK_MONOTONIC, &session->begin_time);
+
+  return timeout;
 }

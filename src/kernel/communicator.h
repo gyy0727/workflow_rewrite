@@ -3,6 +3,7 @@
 
 #include "list.h"
 #include "poller.h"
+#include <ioservice_linux.h>
 #include <mutex>
 #include <pthread.h>
 #include <stddef.h>
@@ -202,4 +203,116 @@ public:
   friend class Communicator;
 };
 
+class Communicator {
+public:
+  int init(size_t poller_threads, size_t handler_threads);
+  void deinit();
+
+  int request(CommSession *session, CommTarget *target);
+  int reply(CommSession *session);
+
+  int push(const void *buf, size_t size, CommSession *session);
+
+  int shutdown(CommSession *session);
+
+  int bind(CommService *service);
+  void unbind(CommService *service);
+
+  int sleep(SleepSession *session);
+  int unsleep(SleepSession *session);
+
+  int io_bind(IOService *service);
+  void io_unbind(IOService *service);
+
+public:
+  int is_handler_thread() const;
+
+  int increase_handler_thread();
+  int decrease_handler_thread();
+
+private:
+  struct __mpoller *mpoller;
+  struct __msgqueue *msgqueue;
+  struct __thrdpool *thrdpool;
+  int stop_flag;
+
+private:
+  int create_poller(size_t poller_threads);
+
+  int create_handler_threads(size_t handler_threads);
+
+  void shutdown_service(CommService *service);
+
+  void shutdown_io_service(IOService *service);
+
+  int send_message_sync(struct iovec vectors[], int cnt,
+                        struct CommConnEntry *entry);
+  int send_message_async(struct iovec vectors[], int cnt,
+                         struct CommConnEntry *entry);
+
+  int send_message(struct CommConnEntry *entry);
+
+  int request_new_conn(CommSession *session, CommTarget *target);
+  int request_idle_conn(CommSession *session, CommTarget *target);
+
+  int reply_message_unreliable(struct CommConnEntry *entry);
+
+  int reply_reliable(CommSession *session, CommTarget *target);
+  int reply_unreliable(CommSession *session, CommTarget *target);
+
+  void handle_incoming_request(struct poller_result *res);
+  void handle_incoming_reply(struct poller_result *res);
+
+  void handle_request_result(struct poller_result *res);
+  void handle_reply_result(struct poller_result *res);
+
+  void handle_write_result(struct poller_result *res);
+  void handle_read_result(struct poller_result *res);
+
+  void handle_connect_result(struct poller_result *res);
+  void handle_listen_result(struct poller_result *res);
+
+  void handle_recvfrom_result(struct poller_result *res);
+
+  void handle_sleep_result(struct poller_result *res);
+
+  void handle_aio_result(struct poller_result *res);
+
+  static void handler_thread_routine(void *context);
+
+  static int nonblock_connect(CommTarget *target);
+  static int nonblock_listen(CommService *service);
+
+  static struct CommConnEntry *launch_conn(CommSession *session,
+                                           CommTarget *target);
+  static struct CommConnEntry *accept_conn(class CommServiceTarget *target,
+                                           CommService *service);
+
+  static int first_timeout(CommSession *session);
+  static int next_timeout(CommSession *session);
+
+  static int first_timeout_send(CommSession *session);
+  static int first_timeout_recv(CommSession *session);
+
+  static int append_message(const void *buf, size_t *size, poller_message *msg);
+
+  static poller_message *create_request(void *context);
+  static poller_message *create_reply(void *context);
+
+  static int recv_request(const void *buf, size_t size,
+                          struct CommConnEntry *entry);
+
+  static int partial_written(size_t n, void *context);
+
+  static void *accept(const struct sockaddr *addr, socklen_t addrlen,
+                      int sockfd, void *context);
+
+  static void *recvfrom(const struct sockaddr *addr, socklen_t addrlen,
+                        const void *buf, size_t size, void *context);
+
+  static void callback(struct poller_result *res, void *context);
+
+public:
+  virtual ~Communicator() {}
+};
 #endif
