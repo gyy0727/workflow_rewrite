@@ -1,4 +1,4 @@
-set(CMAKE_C_COMPILER "/home/cloudide/.nix-profile/bin/cc")
+set(CMAKE_C_COMPILER "/home/cloudide/.nix-profile/bin/gcc")
 set(CMAKE_C_COMPILER_ARG1 "")
 set(CMAKE_C_COMPILER_ID "GNU")
 set(CMAKE_C_COMPILER_VERSION "13.2.0")

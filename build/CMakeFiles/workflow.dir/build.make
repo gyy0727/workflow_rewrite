@@ -69,79 +69,143 @@ include CMakeFiles/workflow.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/workflow.dir/flags.make
 
+CMakeFiles/workflow.dir/src/kernel/communicator.cc.o: CMakeFiles/workflow.dir/flags.make
+CMakeFiles/workflow.dir/src/kernel/communicator.cc.o: /cloudide/workspace/workflow_rewrite/src/kernel/communicator.cc
+CMakeFiles/workflow.dir/src/kernel/communicator.cc.o: CMakeFiles/workflow.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/cloudide/workspace/workflow_rewrite/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/workflow.dir/src/kernel/communicator.cc.o"
+	ccache /home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/workflow.dir/src/kernel/communicator.cc.o -MF CMakeFiles/workflow.dir/src/kernel/communicator.cc.o.d -o CMakeFiles/workflow.dir/src/kernel/communicator.cc.o -c /cloudide/workspace/workflow_rewrite/src/kernel/communicator.cc
+
+CMakeFiles/workflow.dir/src/kernel/communicator.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/workflow.dir/src/kernel/communicator.cc.i"
+	/home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /cloudide/workspace/workflow_rewrite/src/kernel/communicator.cc > CMakeFiles/workflow.dir/src/kernel/communicator.cc.i
+
+CMakeFiles/workflow.dir/src/kernel/communicator.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/workflow.dir/src/kernel/communicator.cc.s"
+	/home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cloudide/workspace/workflow_rewrite/src/kernel/communicator.cc -o CMakeFiles/workflow.dir/src/kernel/communicator.cc.s
+
+CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.o: CMakeFiles/workflow.dir/flags.make
+CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.o: /cloudide/workspace/workflow_rewrite/src/kernel/ioservice_linux.cc
+CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.o: CMakeFiles/workflow.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/cloudide/workspace/workflow_rewrite/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.o"
+	ccache /home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.o -MF CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.o.d -o CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.o -c /cloudide/workspace/workflow_rewrite/src/kernel/ioservice_linux.cc
+
+CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.i"
+	/home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /cloudide/workspace/workflow_rewrite/src/kernel/ioservice_linux.cc > CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.i
+
+CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.s"
+	/home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cloudide/workspace/workflow_rewrite/src/kernel/ioservice_linux.cc -o CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.s
+
+CMakeFiles/workflow.dir/src/kernel/mpoller.cc.o: CMakeFiles/workflow.dir/flags.make
+CMakeFiles/workflow.dir/src/kernel/mpoller.cc.o: /cloudide/workspace/workflow_rewrite/src/kernel/mpoller.cc
+CMakeFiles/workflow.dir/src/kernel/mpoller.cc.o: CMakeFiles/workflow.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/cloudide/workspace/workflow_rewrite/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/workflow.dir/src/kernel/mpoller.cc.o"
+	ccache /home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/workflow.dir/src/kernel/mpoller.cc.o -MF CMakeFiles/workflow.dir/src/kernel/mpoller.cc.o.d -o CMakeFiles/workflow.dir/src/kernel/mpoller.cc.o -c /cloudide/workspace/workflow_rewrite/src/kernel/mpoller.cc
+
+CMakeFiles/workflow.dir/src/kernel/mpoller.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/workflow.dir/src/kernel/mpoller.cc.i"
+	/home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /cloudide/workspace/workflow_rewrite/src/kernel/mpoller.cc > CMakeFiles/workflow.dir/src/kernel/mpoller.cc.i
+
+CMakeFiles/workflow.dir/src/kernel/mpoller.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/workflow.dir/src/kernel/mpoller.cc.s"
+	/home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cloudide/workspace/workflow_rewrite/src/kernel/mpoller.cc -o CMakeFiles/workflow.dir/src/kernel/mpoller.cc.s
+
 CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.o: CMakeFiles/workflow.dir/flags.make
 CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.o: /cloudide/workspace/workflow_rewrite/src/kernel/msgqueue.cc
 CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.o: CMakeFiles/workflow.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/cloudide/workspace/workflow_rewrite/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.o"
-	ccache /home/cloudide/.nix-profile/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.o -MF CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.o.d -o CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.o -c /cloudide/workspace/workflow_rewrite/src/kernel/msgqueue.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/cloudide/workspace/workflow_rewrite/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.o"
+	ccache /home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.o -MF CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.o.d -o CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.o -c /cloudide/workspace/workflow_rewrite/src/kernel/msgqueue.cc
 
 CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.i"
-	/home/cloudide/.nix-profile/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /cloudide/workspace/workflow_rewrite/src/kernel/msgqueue.cc > CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.i
+	/home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /cloudide/workspace/workflow_rewrite/src/kernel/msgqueue.cc > CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.i
 
 CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.s"
-	/home/cloudide/.nix-profile/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cloudide/workspace/workflow_rewrite/src/kernel/msgqueue.cc -o CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.s
+	/home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cloudide/workspace/workflow_rewrite/src/kernel/msgqueue.cc -o CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.s
 
 CMakeFiles/workflow.dir/src/kernel/poller.cc.o: CMakeFiles/workflow.dir/flags.make
 CMakeFiles/workflow.dir/src/kernel/poller.cc.o: /cloudide/workspace/workflow_rewrite/src/kernel/poller.cc
 CMakeFiles/workflow.dir/src/kernel/poller.cc.o: CMakeFiles/workflow.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/cloudide/workspace/workflow_rewrite/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/workflow.dir/src/kernel/poller.cc.o"
-	ccache /home/cloudide/.nix-profile/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/workflow.dir/src/kernel/poller.cc.o -MF CMakeFiles/workflow.dir/src/kernel/poller.cc.o.d -o CMakeFiles/workflow.dir/src/kernel/poller.cc.o -c /cloudide/workspace/workflow_rewrite/src/kernel/poller.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/cloudide/workspace/workflow_rewrite/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/workflow.dir/src/kernel/poller.cc.o"
+	ccache /home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/workflow.dir/src/kernel/poller.cc.o -MF CMakeFiles/workflow.dir/src/kernel/poller.cc.o.d -o CMakeFiles/workflow.dir/src/kernel/poller.cc.o -c /cloudide/workspace/workflow_rewrite/src/kernel/poller.cc
 
 CMakeFiles/workflow.dir/src/kernel/poller.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/workflow.dir/src/kernel/poller.cc.i"
-	/home/cloudide/.nix-profile/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /cloudide/workspace/workflow_rewrite/src/kernel/poller.cc > CMakeFiles/workflow.dir/src/kernel/poller.cc.i
+	/home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /cloudide/workspace/workflow_rewrite/src/kernel/poller.cc > CMakeFiles/workflow.dir/src/kernel/poller.cc.i
 
 CMakeFiles/workflow.dir/src/kernel/poller.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/workflow.dir/src/kernel/poller.cc.s"
-	/home/cloudide/.nix-profile/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cloudide/workspace/workflow_rewrite/src/kernel/poller.cc -o CMakeFiles/workflow.dir/src/kernel/poller.cc.s
+	/home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cloudide/workspace/workflow_rewrite/src/kernel/poller.cc -o CMakeFiles/workflow.dir/src/kernel/poller.cc.s
 
 CMakeFiles/workflow.dir/src/kernel/rbtree.c.o: CMakeFiles/workflow.dir/flags.make
 CMakeFiles/workflow.dir/src/kernel/rbtree.c.o: /cloudide/workspace/workflow_rewrite/src/kernel/rbtree.c
 CMakeFiles/workflow.dir/src/kernel/rbtree.c.o: CMakeFiles/workflow.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/cloudide/workspace/workflow_rewrite/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/workflow.dir/src/kernel/rbtree.c.o"
-	/home/cloudide/.nix-profile/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/workflow.dir/src/kernel/rbtree.c.o -MF CMakeFiles/workflow.dir/src/kernel/rbtree.c.o.d -o CMakeFiles/workflow.dir/src/kernel/rbtree.c.o -c /cloudide/workspace/workflow_rewrite/src/kernel/rbtree.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/cloudide/workspace/workflow_rewrite/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building C object CMakeFiles/workflow.dir/src/kernel/rbtree.c.o"
+	/home/cloudide/.nix-profile/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/workflow.dir/src/kernel/rbtree.c.o -MF CMakeFiles/workflow.dir/src/kernel/rbtree.c.o.d -o CMakeFiles/workflow.dir/src/kernel/rbtree.c.o -c /cloudide/workspace/workflow_rewrite/src/kernel/rbtree.c
 
 CMakeFiles/workflow.dir/src/kernel/rbtree.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/workflow.dir/src/kernel/rbtree.c.i"
-	/home/cloudide/.nix-profile/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /cloudide/workspace/workflow_rewrite/src/kernel/rbtree.c > CMakeFiles/workflow.dir/src/kernel/rbtree.c.i
+	/home/cloudide/.nix-profile/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /cloudide/workspace/workflow_rewrite/src/kernel/rbtree.c > CMakeFiles/workflow.dir/src/kernel/rbtree.c.i
 
 CMakeFiles/workflow.dir/src/kernel/rbtree.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/workflow.dir/src/kernel/rbtree.c.s"
-	/home/cloudide/.nix-profile/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /cloudide/workspace/workflow_rewrite/src/kernel/rbtree.c -o CMakeFiles/workflow.dir/src/kernel/rbtree.c.s
+	/home/cloudide/.nix-profile/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /cloudide/workspace/workflow_rewrite/src/kernel/rbtree.c -o CMakeFiles/workflow.dir/src/kernel/rbtree.c.s
+
+CMakeFiles/workflow.dir/src/kernel/subtask.cc.o: CMakeFiles/workflow.dir/flags.make
+CMakeFiles/workflow.dir/src/kernel/subtask.cc.o: /cloudide/workspace/workflow_rewrite/src/kernel/subtask.cc
+CMakeFiles/workflow.dir/src/kernel/subtask.cc.o: CMakeFiles/workflow.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/cloudide/workspace/workflow_rewrite/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/workflow.dir/src/kernel/subtask.cc.o"
+	ccache /home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/workflow.dir/src/kernel/subtask.cc.o -MF CMakeFiles/workflow.dir/src/kernel/subtask.cc.o.d -o CMakeFiles/workflow.dir/src/kernel/subtask.cc.o -c /cloudide/workspace/workflow_rewrite/src/kernel/subtask.cc
+
+CMakeFiles/workflow.dir/src/kernel/subtask.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/workflow.dir/src/kernel/subtask.cc.i"
+	/home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /cloudide/workspace/workflow_rewrite/src/kernel/subtask.cc > CMakeFiles/workflow.dir/src/kernel/subtask.cc.i
+
+CMakeFiles/workflow.dir/src/kernel/subtask.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/workflow.dir/src/kernel/subtask.cc.s"
+	/home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cloudide/workspace/workflow_rewrite/src/kernel/subtask.cc -o CMakeFiles/workflow.dir/src/kernel/subtask.cc.s
 
 CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.o: CMakeFiles/workflow.dir/flags.make
 CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.o: /cloudide/workspace/workflow_rewrite/src/kernel/thrdpool.cc
 CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.o: CMakeFiles/workflow.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/cloudide/workspace/workflow_rewrite/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.o"
-	ccache /home/cloudide/.nix-profile/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.o -MF CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.o.d -o CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.o -c /cloudide/workspace/workflow_rewrite/src/kernel/thrdpool.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/cloudide/workspace/workflow_rewrite/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.o"
+	ccache /home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.o -MF CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.o.d -o CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.o -c /cloudide/workspace/workflow_rewrite/src/kernel/thrdpool.cc
 
 CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.i"
-	/home/cloudide/.nix-profile/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /cloudide/workspace/workflow_rewrite/src/kernel/thrdpool.cc > CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.i
+	/home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /cloudide/workspace/workflow_rewrite/src/kernel/thrdpool.cc > CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.i
 
 CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.s"
-	/home/cloudide/.nix-profile/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cloudide/workspace/workflow_rewrite/src/kernel/thrdpool.cc -o CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.s
+	/home/cloudide/.nix-profile/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cloudide/workspace/workflow_rewrite/src/kernel/thrdpool.cc -o CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.s
 
 # Object files for target workflow
 workflow_OBJECTS = \
+"CMakeFiles/workflow.dir/src/kernel/communicator.cc.o" \
+"CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.o" \
+"CMakeFiles/workflow.dir/src/kernel/mpoller.cc.o" \
 "CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.o" \
 "CMakeFiles/workflow.dir/src/kernel/poller.cc.o" \
 "CMakeFiles/workflow.dir/src/kernel/rbtree.c.o" \
+"CMakeFiles/workflow.dir/src/kernel/subtask.cc.o" \
 "CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.o"
 
 # External object files for target workflow
 workflow_EXTERNAL_OBJECTS =
 
+/cloudide/workspace/workflow_rewrite/lib/libworkflow.a: CMakeFiles/workflow.dir/src/kernel/communicator.cc.o
+/cloudide/workspace/workflow_rewrite/lib/libworkflow.a: CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.o
+/cloudide/workspace/workflow_rewrite/lib/libworkflow.a: CMakeFiles/workflow.dir/src/kernel/mpoller.cc.o
 /cloudide/workspace/workflow_rewrite/lib/libworkflow.a: CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.o
 /cloudide/workspace/workflow_rewrite/lib/libworkflow.a: CMakeFiles/workflow.dir/src/kernel/poller.cc.o
 /cloudide/workspace/workflow_rewrite/lib/libworkflow.a: CMakeFiles/workflow.dir/src/kernel/rbtree.c.o
+/cloudide/workspace/workflow_rewrite/lib/libworkflow.a: CMakeFiles/workflow.dir/src/kernel/subtask.cc.o
 /cloudide/workspace/workflow_rewrite/lib/libworkflow.a: CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.o
 /cloudide/workspace/workflow_rewrite/lib/libworkflow.a: CMakeFiles/workflow.dir/build.make
 /cloudide/workspace/workflow_rewrite/lib/libworkflow.a: CMakeFiles/workflow.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/cloudide/workspace/workflow_rewrite/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX static library /cloudide/workspace/workflow_rewrite/lib/libworkflow.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/cloudide/workspace/workflow_rewrite/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX static library /cloudide/workspace/workflow_rewrite/lib/libworkflow.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/workflow.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/workflow.dir/link.txt --verbose=$(VERBOSE)
 

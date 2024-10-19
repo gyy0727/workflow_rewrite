@@ -81,12 +81,12 @@ clean: CMakeFiles/workflow.dir/clean
 CMakeFiles/workflow.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/workflow.dir/build.make CMakeFiles/workflow.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/workflow.dir/build.make CMakeFiles/workflow.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/cloudide/workspace/workflow_rewrite/build/CMakeFiles --progress-num=1,2,3,4,5 "Built target workflow"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/cloudide/workspace/workflow_rewrite/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9 "Built target workflow"
 .PHONY : CMakeFiles/workflow.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/workflow.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /cloudide/workspace/workflow_rewrite/build/CMakeFiles 5
+	$(CMAKE_COMMAND) -E cmake_progress_start /cloudide/workspace/workflow_rewrite/build/CMakeFiles 9
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/workflow.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /cloudide/workspace/workflow_rewrite/build/CMakeFiles 0
 .PHONY : CMakeFiles/workflow.dir/rule

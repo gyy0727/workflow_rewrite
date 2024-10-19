@@ -129,6 +129,78 @@ workflow/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/workflow.dir/build.make CMakeFiles/workflow.dir/build
 .PHONY : workflow/fast
 
+src/kernel/communicator.o: src/kernel/communicator.cc.o
+.PHONY : src/kernel/communicator.o
+
+# target to build an object file
+src/kernel/communicator.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/workflow.dir/build.make CMakeFiles/workflow.dir/src/kernel/communicator.cc.o
+.PHONY : src/kernel/communicator.cc.o
+
+src/kernel/communicator.i: src/kernel/communicator.cc.i
+.PHONY : src/kernel/communicator.i
+
+# target to preprocess a source file
+src/kernel/communicator.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/workflow.dir/build.make CMakeFiles/workflow.dir/src/kernel/communicator.cc.i
+.PHONY : src/kernel/communicator.cc.i
+
+src/kernel/communicator.s: src/kernel/communicator.cc.s
+.PHONY : src/kernel/communicator.s
+
+# target to generate assembly for a file
+src/kernel/communicator.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/workflow.dir/build.make CMakeFiles/workflow.dir/src/kernel/communicator.cc.s
+.PHONY : src/kernel/communicator.cc.s
+
+src/kernel/ioservice_linux.o: src/kernel/ioservice_linux.cc.o
+.PHONY : src/kernel/ioservice_linux.o
+
+# target to build an object file
+src/kernel/ioservice_linux.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/workflow.dir/build.make CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.o
+.PHONY : src/kernel/ioservice_linux.cc.o
+
+src/kernel/ioservice_linux.i: src/kernel/ioservice_linux.cc.i
+.PHONY : src/kernel/ioservice_linux.i
+
+# target to preprocess a source file
+src/kernel/ioservice_linux.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/workflow.dir/build.make CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.i
+.PHONY : src/kernel/ioservice_linux.cc.i
+
+src/kernel/ioservice_linux.s: src/kernel/ioservice_linux.cc.s
+.PHONY : src/kernel/ioservice_linux.s
+
+# target to generate assembly for a file
+src/kernel/ioservice_linux.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/workflow.dir/build.make CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.s
+.PHONY : src/kernel/ioservice_linux.cc.s
+
+src/kernel/mpoller.o: src/kernel/mpoller.cc.o
+.PHONY : src/kernel/mpoller.o
+
+# target to build an object file
+src/kernel/mpoller.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/workflow.dir/build.make CMakeFiles/workflow.dir/src/kernel/mpoller.cc.o
+.PHONY : src/kernel/mpoller.cc.o
+
+src/kernel/mpoller.i: src/kernel/mpoller.cc.i
+.PHONY : src/kernel/mpoller.i
+
+# target to preprocess a source file
+src/kernel/mpoller.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/workflow.dir/build.make CMakeFiles/workflow.dir/src/kernel/mpoller.cc.i
+.PHONY : src/kernel/mpoller.cc.i
+
+src/kernel/mpoller.s: src/kernel/mpoller.cc.s
+.PHONY : src/kernel/mpoller.s
+
+# target to generate assembly for a file
+src/kernel/mpoller.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/workflow.dir/build.make CMakeFiles/workflow.dir/src/kernel/mpoller.cc.s
+.PHONY : src/kernel/mpoller.cc.s
+
 src/kernel/msgqueue.o: src/kernel/msgqueue.cc.o
 .PHONY : src/kernel/msgqueue.o
 
@@ -201,6 +273,30 @@ src/kernel/rbtree.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/workflow.dir/build.make CMakeFiles/workflow.dir/src/kernel/rbtree.c.s
 .PHONY : src/kernel/rbtree.c.s
 
+src/kernel/subtask.o: src/kernel/subtask.cc.o
+.PHONY : src/kernel/subtask.o
+
+# target to build an object file
+src/kernel/subtask.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/workflow.dir/build.make CMakeFiles/workflow.dir/src/kernel/subtask.cc.o
+.PHONY : src/kernel/subtask.cc.o
+
+src/kernel/subtask.i: src/kernel/subtask.cc.i
+.PHONY : src/kernel/subtask.i
+
+# target to preprocess a source file
+src/kernel/subtask.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/workflow.dir/build.make CMakeFiles/workflow.dir/src/kernel/subtask.cc.i
+.PHONY : src/kernel/subtask.cc.i
+
+src/kernel/subtask.s: src/kernel/subtask.cc.s
+.PHONY : src/kernel/subtask.s
+
+# target to generate assembly for a file
+src/kernel/subtask.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/workflow.dir/build.make CMakeFiles/workflow.dir/src/kernel/subtask.cc.s
+.PHONY : src/kernel/subtask.cc.s
+
 src/kernel/thrdpool.o: src/kernel/thrdpool.cc.o
 .PHONY : src/kernel/thrdpool.o
 
@@ -234,6 +330,15 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... workflow"
+	@echo "... src/kernel/communicator.o"
+	@echo "... src/kernel/communicator.i"
+	@echo "... src/kernel/communicator.s"
+	@echo "... src/kernel/ioservice_linux.o"
+	@echo "... src/kernel/ioservice_linux.i"
+	@echo "... src/kernel/ioservice_linux.s"
+	@echo "... src/kernel/mpoller.o"
+	@echo "... src/kernel/mpoller.i"
+	@echo "... src/kernel/mpoller.s"
 	@echo "... src/kernel/msgqueue.o"
 	@echo "... src/kernel/msgqueue.i"
 	@echo "... src/kernel/msgqueue.s"
@@ -243,6 +348,9 @@ help:
 	@echo "... src/kernel/rbtree.o"
 	@echo "... src/kernel/rbtree.i"
 	@echo "... src/kernel/rbtree.s"
+	@echo "... src/kernel/subtask.o"
+	@echo "... src/kernel/subtask.i"
+	@echo "... src/kernel/subtask.s"
 	@echo "... src/kernel/thrdpool.o"
 	@echo "... src/kernel/thrdpool.i"
 	@echo "... src/kernel/thrdpool.s"

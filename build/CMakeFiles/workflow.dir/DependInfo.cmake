@@ -9,8 +9,12 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/cloudide/workspace/workflow_rewrite/src/kernel/rbtree.c" "CMakeFiles/workflow.dir/src/kernel/rbtree.c.o" "gcc" "CMakeFiles/workflow.dir/src/kernel/rbtree.c.o.d"
+  "/cloudide/workspace/workflow_rewrite/src/kernel/communicator.cc" "CMakeFiles/workflow.dir/src/kernel/communicator.cc.o" "gcc" "CMakeFiles/workflow.dir/src/kernel/communicator.cc.o.d"
+  "/cloudide/workspace/workflow_rewrite/src/kernel/ioservice_linux.cc" "CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.o" "gcc" "CMakeFiles/workflow.dir/src/kernel/ioservice_linux.cc.o.d"
+  "/cloudide/workspace/workflow_rewrite/src/kernel/mpoller.cc" "CMakeFiles/workflow.dir/src/kernel/mpoller.cc.o" "gcc" "CMakeFiles/workflow.dir/src/kernel/mpoller.cc.o.d"
   "/cloudide/workspace/workflow_rewrite/src/kernel/msgqueue.cc" "CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.o" "gcc" "CMakeFiles/workflow.dir/src/kernel/msgqueue.cc.o.d"
   "/cloudide/workspace/workflow_rewrite/src/kernel/poller.cc" "CMakeFiles/workflow.dir/src/kernel/poller.cc.o" "gcc" "CMakeFiles/workflow.dir/src/kernel/poller.cc.o.d"
+  "/cloudide/workspace/workflow_rewrite/src/kernel/subtask.cc" "CMakeFiles/workflow.dir/src/kernel/subtask.cc.o" "gcc" "CMakeFiles/workflow.dir/src/kernel/subtask.cc.o.d"
   "/cloudide/workspace/workflow_rewrite/src/kernel/thrdpool.cc" "CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.o" "gcc" "CMakeFiles/workflow.dir/src/kernel/thrdpool.cc.o.d"
   )
 
