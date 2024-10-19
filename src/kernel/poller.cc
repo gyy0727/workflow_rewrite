@@ -205,7 +205,7 @@ static int __poller_append_message(const void *buf, size_t *n,
                                    struct __poller_node *node, poller *poller) {
   poller_message *msg = node->data.message;
   struct __poller_node *res;
-  int ret;
+  int ret = 0;
   if (!msg) {
     res = (struct __poller_node *)malloc(sizeof(struct __poller_node));
     if (!res) {
@@ -285,7 +285,7 @@ static void __poller_handle_write(struct __poller_node *node, poller *poller) {
   size_t count = 0;                         //*已经发送的写结构体数量
   ssize_t nleft;                            //*每次while循环发送的大小
   int iovcnt;                               //*需要发送iovec的数量
-  int ret;
+  int ret = 0;
 
   while (node->data.iovcnt > 0) {
     iovcnt = node->data.iovcnt;
@@ -774,7 +774,7 @@ void poller_destroy(poller *poller) {
 //*开启poller线程池,one thread per poller
 int poller_start(poller *poller) {
   pthread_t tid;
-  int ret;
+  int ret = 0;
   // pthread_mutex_lock(&poller->mutex);
   std::unique_lock<std::mutex> lock(poller->mutex);
   if (__poller_open_pipe(poller) >= 0) {

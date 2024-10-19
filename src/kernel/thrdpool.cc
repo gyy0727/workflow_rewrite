@@ -91,7 +91,7 @@ static void __thrdpool_terminate(int in_pool, thrdpool *pool) {
 static int __thrdpool_create_threads(size_t nthreads, thrdpool *pool) {
   pthread_attr_t attr;
   pthread_t tid;
-  int ret;
+  int ret = 0;
   ret = pthread_attr_init(&attr); //*初始化线程创建传入的参数
   if (ret == 0) {
     if (pool->stacksize) {
@@ -167,7 +167,7 @@ int thrdpool_in_pool(thrdpool *pool) { return parent_thrdpool == pool; }
 int thrdpool_increase(thrdpool *pool) {
   pthread_attr_t attr;
   pthread_t tid;
-  int ret;
+  int ret = 0;
   ret = pthread_attr_init(&attr);
   if (ret == 0) {
     if (pool->stacksize)

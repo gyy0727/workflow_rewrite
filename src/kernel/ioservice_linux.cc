@@ -229,7 +229,7 @@ void IOSession::prep_fdsync(int fd) {
 }
 
 int IOService::init(int maxevents) {
-  int ret;
+  int ret = 0;
 
   if (maxevents < 0) {
     errno = EINVAL;
