@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <mutex>
 #include <pthread.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -142,4 +143,27 @@ int CommService::init(const struct sockaddr *bind_addr, socklen_t addrlen,
 //*重置
 void CommService::deinit() { free(this->bind_addr); }
 
+int CommService::drain(int max) {
+  struct CommConnEntry *entry;
+  struct list *pos;
+  int errno_bak;
+  int cnt = 0;
 
+  errno_bak = errno;
+  std::unique_lock<std::mutex> lock(this->m_mutex);
+  while (cnt != max && !list_empty(&this->alive_list)) {
+    pos = this->alive_list.next;
+    entry = list_entry(pos, struct CommConnEntry, list_);
+    list_delete(pos);
+    cnt++;
+
+    /* Cannot change the sequence of next two lines. */
+    mpoller_del(entry->sockfd_, entry->mpoller_);
+    entry->state_ = CONN_STATE_CLOSING;
+  }
+
+  //   pthread_mutex_unlock(&this->m_mutex);
+  lock.unlock();
+  errno = errno_bak;
+  return cnt;
+}
