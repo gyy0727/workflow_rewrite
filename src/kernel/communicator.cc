@@ -4,6 +4,8 @@
 #include "msgqueue.h"
 #include "poller.h"
 #include "thrdpool.h"
+#include <bits/types/struct_iovec.h>
+#include <cerrno>
 #include <cstdlib>
 #include <errno.h>
 #include <fcntl.h>
@@ -293,3 +295,20 @@ void Communicator::shutdown_service(CommService *service) {
 #define IOV_MAX 1024
 #endif
 #endif
+
+int Communicator::send_message_sync(struct iovec vectors[], int cnt,
+                                    struct CommConnEntry *entry) {
+  CommSession *session = entry->session_;
+  CommService *service;
+  int timeout;
+  ssize_t n;
+  int i;
+
+  while (cnt > 0) {
+    n = writev(entry->sockfd_, vectors, cnt <= IOV_MAX ? cnt : IOV_MAX);
+    if (n < 0) {
+      return errno == EAGAIN ? cnt : -1;
+    }
+    
+  }
+}
