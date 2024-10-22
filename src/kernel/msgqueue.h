@@ -5,7 +5,7 @@
 
 #include <stddef.h>
 
-typedef struct __msgqueue msgqueue;
+struct msgqueue;
 msgqueue *msgqueue_create(size_t maxlen, int linkoff);
 void *msgqueue_get(msgqueue *queue);
 void msgqueue_put(void *msg, msgqueue *queue);

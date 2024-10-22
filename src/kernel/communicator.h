@@ -231,9 +231,9 @@ public:
   int decrease_handler_thread();
 
 private:
-  struct __mpoller *mpoller;
-  struct __msgqueue *msgqueue;
-  struct __thrdpool *thrdpool;
+  struct mpoller *mpoller;
+  struct msgqueue *msgqueue;
+  struct thrdpool *thrdpool;
   int stop_flag;
 
 private:
